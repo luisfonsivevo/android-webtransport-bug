@@ -1,0 +1,32 @@
+<html>
+	<body>
+		<script type="module">
+			const transport = new WebTransport(`https://${location.hostname}:8642`, {
+				serverCertificateHashes: [
+					{
+						algorithm: "sha-256",
+						value: new Uint8Array([
+							145, 158, 21, 74, 201, 150, 52, 80, 14, 163, 153, 140, 197, 187,
+							247, 156, 110, 13, 94, 169, 239, 63, 6, 98, 98, 244, 115, 23, 12,
+							93, 65, 39,
+						]),
+					},
+				],
+			});
+
+			await transport.ready;
+
+			const writer = (await transport.createUnidirectionalStream()).getWriter();
+
+			const CHUNK_SIZE = 4;
+			while (true) {
+				await writer.ready;
+				await writer.write(new Uint8Array(CHUNK_SIZE));
+				console.log(
+					`sent ${CHUNK_SIZE} bytes, desiredSize: ${writer.desiredSize}`
+				);
+				await scheduler.yield(); //prevent firefox android from killing the script
+			}
+		</script>
+	</body>
+</html>
